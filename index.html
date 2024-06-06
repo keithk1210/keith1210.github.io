@@ -5,8 +5,13 @@
         accountHash: '3TFXMS',
         autoStart: true,
         autoPreLoad: true,
+    
 };
 
 window.Realeyesit.experienceSdk.init(reConfig);
+
+window.Realeyesit.experienceSdk.on('facialExpressionsDetected', (params) => {
+    console.log(params);
+});
 </script>
 
