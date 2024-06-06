@@ -93,7 +93,15 @@
             window.Realeyesit.experienceSdk.init(reConfig);
             /* Subscribe to facial expression detected event and error event available events */
             window.Realeyesit.experienceSdk.on('facialExpressionsDetected', (params) => {
-                 updateResults(JSON.stringify(params.results.predictions, null, 2), taFacialExpressionResults);
+                max_emotion = null
+                max_prob = 0
+                for (let i = 0; i < params.results.predictions.length; i++) {
+                    if (params.results.predictions[i].linear > max_prob) {
+                        max_emotion = String(params.results.predictions[i])
+                        max_prob = params.results.predictions[i].linear
+                    }
+                }
+                 
             });
             window.Realeyesit.experienceSdk.error((err) => {
                 updateResults(' \n\n Error occurred: ' + err, taStatusResults);
@@ -142,7 +150,7 @@
         /* Misc */
         function updateResults(text, textAreaElement) {
             if (!textAreaElement) { textAreaElement = taStatusResults; }
-            textAreaElement.value += ' \n\n' + text;
+            textAreaElement.value = ' \n\n' + text;
             textAreaElement.scrollTop = textAreaElement.scrollHeight;
         }
         /* End of Misc */
