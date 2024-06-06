@@ -1,17 +1,151 @@
-<script src="https://codesdwncdn.realeyesit.com/experience-sdk/xp/release/1/reExperienceSdk.min.js"></script>
+<!DOCTYPE html>
+<html>
 
-<script>
-    var reConfig = {
-        accountHash: '3TFXMS',
-        autoStart: true,
-        autoPreLoad: true,
-    
-};
+<head>
+    <title>Advanced controls example</title>
 
-window.Realeyesit.experienceSdk.init(reConfig);
+    <script src="https://codesdwncdn.realeyesit.com/experience-sdk/xp/release/1/reExperienceSdk.min.js"></script>
+</head>
 
-window.Realeyesit.experienceSdk.on('facialExpressionsDetected', (params) => {
-    console.log(params);
-});
-</script>
-
+<body>
+    <h2>Advanced controls example</h2>
+    <div id="divControls">
+        <input type="button" id="btInit" onclick="init()" value="Init SDK">
+        <input type="button" id="btStart" onclick="start()" value="Start" disabled>
+        <input type="button" id="btStop" onclick="stop()" value="Stop" disabled>
+    </div>
+    <hr />
+    <div id="divSdk">
+        <div id="divFeedback">
+        <div style="display: inline-block; width: 45%">
+            <h2>Mirror</h2>
+            <video id="video" width="320" height="240" style="border: 1px solid;"></video>
+        </div>
+        <div style="display: inline-block; width: 45%">
+            <h2>Information</h2>
+            <textarea style="width: 320px; height: 240px;" id="taStatusResults"></textarea>
+        </div>
+        </div>
+        <div id="divResults" style="width: 100%;">
+            <h2>Facial expression results</h2>
+            <br />
+            <textarea style="width: 85%; height: 800px;" id="taFacialExpressionResults"></textarea>
+        </div>
+    </div>
+    <script>
+        /* Init html elements */
+        var divSdk = document.getElementById('divSdk');
+        var video = document.getElementById('video');
+        var taStatusResults = document.getElementById('taStatusResults');
+        var taFacialExpressionResults = document.getElementById('taFacialExpressionResults');
+        var btStart = document.getElementById('btStart');
+        var btStop = document.getElementById('btStop');
+        var btInit = document.getElementById('btInit');
+        /* End of init html elements */
+        /* Signing up to core events */
+        window.Realeyesit.experienceSdk.on('initDone', () => {
+            btInit.disabled = true;
+            btStart.disabled = false;
+            updateResults('InitDone event happened!', taStatusResults);
+            updateResults('Your sourceId is: ' + window.Realeyesit.experienceSdk.getSourceId(), taStatusResults);
+        });
+        window.Realeyesit.experienceSdk.on('preloadDone', () => {
+            updateResults('PreloadDone event happened!', taStatusResults);
+        });
+        window.Realeyesit.experienceSdk.on('cameraPermissionAccessed', () => {
+            updateResults('CameraPermissionAccessed event happened!', taStatusResults);
+        });
+        window.Realeyesit.experienceSdk.on('cameraPermissionDenied', () => {
+            updateResults('CameraPermissionDenied event happened!');
+        });
+        /* End of signing up to core events */
+        async function init() {
+            updateResults('Init has been called!', taStatusResults);
+            updateResults('Please wait until Init finishes!', taStatusResults);
+            btInit.disabled = true;
+            /* Configuration of ExperienceSDK */
+            var reConfig = {
+                autoStart: false,
+                accountHash: '3TFXMS',
+                predictionPerSecondLimit: 2,
+            };
+            /* End of configuration of ExperienceSDK*/
+            /* Access camera stream */
+            cameraStream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    width: {
+                        min: 320,
+                        ideal: 640
+                    },
+                    height: {
+                        min: 240,
+                        ideal: 480
+                    },
+                    facingMode: {
+                        ideal: "user"
+                    },
+                },
+                audio: false,
+            });
+            /* End of access camera stream*/
+            /* Start ExperianceSDK */
+            reConfig.cameraStream = cameraStream;
+            window.Realeyesit.experienceSdk.init(reConfig);
+            /* Subscribe to facial expression detected event and error event available events */
+            window.Realeyesit.experienceSdk.on('facialExpressionsDetected', (params) => {
+                 updateResults(JSON.stringify(params.results.predictions, null, 2), taFacialExpressionResults);
+            });
+            window.Realeyesit.experienceSdk.error((err) => {
+                updateResults(' \n\n Error occurred: ' + err, taStatusResults);
+            });
+            /*Init mirror*/
+            video.setAttribute('playsinline', '');
+            video.playsinline = '';
+            video.setAttribute('muted', '');
+            video.controls = true;
+            video.muted = true;
+            video.autoplay = true;
+            video.srcObject = this.cameraStream;
+            const loadedMetadataHandler = () => {
+                this.video.play();
+            };
+            if (video.onloadedmetadata) {
+                video.onloadedmetadata = loadedMetadataHandler;
+            }
+            video.addEventListener('loadedmetadata', loadedMetadataHandler);
+            /* End of init mirror*/
+            /* Activate user interface */
+            divSdk.style.visibility = 'visible';
+        }
+        /* Controls */
+        async function stop() {
+            updateResults('Stop has been called!');
+            try {
+                window.Realeyesit.experienceSdk.stop(false);
+                btStart.disabled = false;
+                btStop.disabled = true;
+            } catch (error) {
+                updateResults(`Error ${error}`);
+            }
+        }
+        async function start() {
+            updateResults('Start has been called!');
+            try {
+                window.Realeyesit.experienceSdk.start();
+                btStart.disabled = true;
+                btStop.disabled = false;
+            } catch (error) {
+                updateResults(`Error ${error}`);
+            }
+        }
+        /* End of Controls */
+        /* Misc */
+        function updateResults(text, textAreaElement) {
+            if (!textAreaElement) { textAreaElement = taStatusResults; }
+            textAreaElement.value += ' \n\n' + text;
+            textAreaElement.scrollTop = textAreaElement.scrollHeight;
+        }
+        /* End of Misc */
+    </script>
+</body>
+</html>
