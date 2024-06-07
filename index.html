@@ -4,6 +4,7 @@
 <head>
     <title>Advanced controls example</title>
 
+    <script src='https://cdn.plot.ly/plotly-2.32.0.min.js'></script>
     <script src="https://codesdwncdn.realeyesit.com/experience-sdk/xp/release/1/reExperienceSdk.min.js"></script>
 </head>
 
@@ -95,12 +96,39 @@
             window.Realeyesit.experienceSdk.on('facialExpressionsDetected', (params) => {
                 max_emotion = null
                 max_prob = 0
-                for (let i = 0; i < params.results.predictions.length; i++) {
-                    if (params.results.predictions[i].linear > max_prob) {
-                        max_emotion = String(params.results.predictions[i])
-                        max_prob = params.results.predictions[i].linear
+                //console.log(params.results.predictions)
+
+                var x = ["PLACEHOLDER"]
+                var y = [100]
+
+                for (predict in params.results.predictions) {
+                    //console.log(predict)
+                    //console.log(params.results.predictions[predict])
+                    for (elem in params.results.predictions[predict]) {
+                        if (elem == 'linear') {
+                            //if (params.results.predictions[predict][elem] > max_prob) {
+                            x.push(predict)
+                            y.push(Math.round(params.results.predictions[predict][elem] * 100) + "")
+                            //console.log(params.results.predictions[predict][elem] * 100)
+                        }
                     }
                 }
+
+                var data = [
+                {
+                    histfunc: "count",
+                    y: y,
+                    x: x,
+                    type: "bar",
+                    name: "count",
+                }
+                ]
+
+                console.log(x)
+                console.log(y)
+
+                Plotly.react('divResults', data)
+                //updateResults(max_prob,taFacialExpressionResults)
                  
             });
             window.Realeyesit.experienceSdk.error((err) => {
@@ -150,7 +178,7 @@
         /* Misc */
         function updateResults(text, textAreaElement) {
             if (!textAreaElement) { textAreaElement = taStatusResults; }
-            textAreaElement.value = ' \n\n' + text;
+            textAreaElement.value += ' \n\n' + text;
             textAreaElement.scrollTop = textAreaElement.scrollHeight;
         }
         /* End of Misc */
