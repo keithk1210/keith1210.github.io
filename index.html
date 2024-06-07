@@ -132,7 +132,7 @@
                  
             });
             window.Realeyesit.experienceSdk.error((err) => {
-                updateResults(' \n\n Error occurred: ' + err, taStatusResults);
+                updateResults(' \n\n Error occurred: ' + JSON.stringify(err), taStatusResults);
             });
             /*Init mirror*/
             video.setAttribute('playsinline', '');
