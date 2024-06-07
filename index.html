@@ -4,7 +4,8 @@
 <head>
     <title>Advanced controls example</title>
 
-    <script src='https://cdn.plot.ly/plotly-2.32.0.min.js'></script>
+    <!--<script src='https://cdn.plot.ly/plotly-2.32.0.min.js'></script>
+-->
     <script src="https://codesdwncdn.realeyesit.com/experience-sdk/xp/release/1/reExperienceSdk.min.js"></script>
 </head>
 
@@ -102,8 +103,6 @@
                 var y = [100]
 
                 for (predict in params.results.predictions) {
-                    //console.log(predict)
-                    //console.log(params.results.predictions[predict])
                     for (elem in params.results.predictions[predict]) {
                         if (elem == 'linear') {
                             //if (params.results.predictions[predict][elem] > max_prob) {
@@ -115,19 +114,19 @@
                 }
 
                 var data = [
-                {
-                    histfunc: "count",
-                    y: y,
-                    x: x,
-                    type: "bar",
-                    name: "count",
-                }
+                    {
+                        histfunc: "count",
+                        y: y,
+                        x: x,
+                        type: "bar",
+                        name: "count",
+                    }
                 ]
 
                 console.log(x)
                 console.log(y)
 
-                Plotly.react('divResults', data)
+                //Plotly.react('divResults', data)
                 //updateResults(max_prob,taFacialExpressionResults)
                  
             });
